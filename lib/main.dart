@@ -20,6 +20,12 @@ class MyApp extends StatelessWidget {
       title: 'LuxeBeauty',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      builder: (context, child) {
+        return ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+          child: child!,
+        );
+      },
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
