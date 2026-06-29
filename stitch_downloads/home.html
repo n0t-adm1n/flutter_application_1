@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LuxeBeauty - Home &amp; Discovery</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e4e2de",
+                        "inverse-surface": "#30312e",
+                        "secondary": "#735c00",
+                        "primary-fixed": "#e4e2e1",
+                        "surface-container-low": "#f5f3ef",
+                        "surface-tint": "#5f5e5e",
+                        "on-tertiary-container": "#dc775c",
+                        "on-secondary-container": "#745c00",
+                        "tertiary": "#340600",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "surface-variant": "#e4e2de",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#e9c349",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1b1c1a",
+                        "on-primary-container": "#949393",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#7c2e19",
+                        "surface-container": "#efeeea",
+                        "surface": "#fbf9f5",
+                        "on-primary-fixed": "#1b1c1c",
+                        "outline-variant": "#c4c7c7",
+                        "tertiary-fixed": "#ffdbd2",
+                        "on-primary-fixed-variant": "#474747",
+                        "inverse-primary": "#c8c6c5",
+                        "outline": "#747878",
+                        "tertiary-fixed-dim": "#ffb4a1",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#574500",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-secondary-fixed": "#241a00",
+                        "background": "#fbf9f5",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#3c0800",
+                        "secondary-container": "#fed65b",
+                        "surface-bright": "#fbf9f5",
+                        "surface-container-high": "#eae8e4",
+                        "primary-container": "#2c2c2c",
+                        "primary": "#171818",
+                        "surface-dim": "#dbdad6",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary-container": "#571302",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1b1c1a",
+                        "on-surface-variant": "#444748",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "sm": "16px",
+                        "xl": "64px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "80px",
+                        "xs": "8px",
+                        "lg": "40px",
+                        "gutter": "24px",
+                        "md": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Work Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Work Sans"],
+                        "display-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Work Sans"],
+                        "label-sm": ["Work Sans"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #FDFBF7;
+            color: #2C2C2C;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface w-full min-h-screen relative pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-dim z-40 transition-shadow duration-300" id="main-header">
+<div class="flex justify-between items-center px-margin-mobile py-4 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-2 cursor-pointer group">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed group-hover:opacity-80 transition-opacity" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Current Location</span>
+<span class="font-body-md text-body-md text-primary font-semibold truncate max-w-[200px]">Sector 62, Noida</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-y-1 transition-transform">keyboard_arrow_down</span>
+</div>
+<div class="hidden md:flex flex-1 mx-8 max-w-2xl">
+<!-- Desktop Nav would go here, omitting for Mobile First approach as requested by prompt focus -->
+<h1 class="font-display-lg-mobile text-display-lg-mobile tracking-tighter text-primary dark:text-primary-fixed mx-auto">LuxeBeauty</h1>
+</div>
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant hover:opacity-80 transition-opacity cursor-pointer scale-95 active:transition-transform">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A close-up portrait of a sophisticated woman with glowing skin, soft neutral makeup, looking relaxed in a modern, brightly lit environment. Light mode, high key photography, subtle rose-gold accents in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB21q_fVb-XWUmlKMOloERrZ43wRWDUDg-3itqQCipgQLdQIUe3WlyqENYH-cDO9eD-tDtAZdgEKyusjWdAd-tLqQPNum75YfzWz66QBTFdnr1gVFyIPQFfbiker6qdS1wW00_ENGZTdGq2ySjRPs_loKVv3KR-XEQMBK97GnUhzpWJjfa6qDC7ELrEkB1Nnhjokiht1Ia_VdEtqqAf71kJyu3hVsmkwex6Uc2y2kLDOKeDhMswEEam5m9JVeU29eE-3tWjJy_G_5V4"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop pt-6">
+<!-- Mobile Header Title (Visible only on mobile) -->
+<div class="md:hidden mb-6">
+<h1 class="font-display-lg-mobile text-display-lg-mobile tracking-tighter text-primary dark:text-primary-fixed">LuxeBeauty</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Discover premium beauty &amp; wellness.</p>
+</div>
+<!-- Search & Filter -->
+<div class="relative w-full mb-xl">
+<div class="flex items-center w-full bg-[#F4F4F4] rounded-full p-1 shadow-sm focus-within:ring-2 focus-within:ring-[#D4AF37] transition-all duration-300">
+<div class="pl-4 pr-2 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</div>
+<input class="flex-1 bg-transparent border-none outline-none font-body-md text-body-md text-primary placeholder:text-on-surface-variant py-3 focus:ring-0" placeholder="Search salons, hair stylists, bridal makeup..." type="text"/>
+<button class="bg-primary-container text-on-primary w-12 h-12 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity ml-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">tune</span>
+</button>
+</div>
+</div>
+<!-- Categories Grid (Horizontal Scroll) -->
+<section class="mb-xl">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-6">Explore Services</h2>
+<div class="flex overflow-x-auto hide-scrollbar gap-6 pb-4 -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+<!-- Category Item -->
+<div class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-[#D4AF37] bg-opacity-5 flex items-center justify-center group-hover:bg-opacity-10 transition-colors border border-transparent group-hover:border-[#D4AF37]">
+<span class="material-symbols-outlined text-[#D4AF37] text-3xl">content_cut</span>
+</div>
+<span class="font-label-md text-label-md text-primary text-center">Haircut</span>
+</div>
+<!-- Category Item -->
+<div class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-[#D4AF37] bg-opacity-5 flex items-center justify-center group-hover:bg-opacity-10 transition-colors border border-transparent group-hover:border-[#D4AF37]">
+<span class="material-symbols-outlined text-[#D4AF37] text-3xl">face_retouching_natural</span>
+</div>
+<span class="font-label-md text-label-md text-primary text-center">Facial &amp; Skincare</span>
+</div>
+<!-- Category Item -->
+<div class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-[#D4AF37] bg-opacity-5 flex items-center justify-center group-hover:bg-opacity-10 transition-colors border border-transparent group-hover:border-[#D4AF37]">
+<span class="material-symbols-outlined text-[#D4AF37] text-3xl">brush</span>
+</div>
+<span class="font-label-md text-label-md text-primary text-center">Makeup &amp; Bridal</span>
+</div>
+<!-- Category Item -->
+<div class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-[#D4AF37] bg-opacity-5 flex items-center justify-center group-hover:bg-opacity-10 transition-colors border border-transparent group-hover:border-[#D4AF37]">
+<span class="material-symbols-outlined text-[#D4AF37] text-3xl">dry_cleaning</span>
+</div>
+<span class="font-label-md text-label-md text-primary text-center">Nails</span>
+</div>
+<!-- Category Item -->
+<div class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-[#D4AF37] bg-opacity-5 flex items-center justify-center group-hover:bg-opacity-10 transition-colors border border-transparent group-hover:border-[#D4AF37]">
+<span class="material-symbols-outlined text-[#D4AF37] text-3xl">spa</span>
+</div>
+<span class="font-label-md text-label-md text-primary text-center">Spa &amp; Massage</span>
+</div>
+</div>
+</section>
+<!-- Featured Parlors Feed -->
+<section class="mb-xl">
+<div class="flex justify-between items-end mb-6">
+<h2 class="font-headline-sm text-headline-sm text-primary">Featured Salons</h2>
+<button class="font-label-md text-label-md text-[#D4AF37] hover:opacity-80 transition-opacity">View all</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Salon Card 1 -->
+<div class="flex flex-col bg-surface rounded-[16px] overflow-hidden cursor-pointer group">
+<div class="relative w-full aspect-video rounded-[16px] overflow-hidden">
+<img alt="Salon Interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A wide, bright shot of a high-end salon interior. Cream colored walls, modern minimalist arched mirrors, rose-gold styling chairs, and soft natural sunlight pouring in through large windows. Clean, luxurious, light mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOAn8_CVoyho4d7_7wY08NM-BfuKa0KlfFZEHcI0qKLVD0De4ASHsn_kWhdOEkRDDSSthW1b7tgjETa-pKPe6WEtZJ_-gprdk0r_MZ_f8dO0xFBkGHqwxJOlpz92Zf319p16m2fUxVXdKKxd12hNU_aXR8u54ASXIcMKH1_HD738YtUj1yypu18TfMaiV6a64lrQRUGAAXQsLyZNu-Mbb55pYLChG-qaHJ5ko6tM0oEdK1xawPekPYo8Qci-gtTxpX1f-dDBxNY3Om"/>
+<div class="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm rounded-full p-2 flex items-center justify-center hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-primary">favorite</span>
+</div>
+<div class="absolute top-4 left-4 bg-[#E07A5F] bg-opacity-90 backdrop-blur-sm px-3 py-1 rounded-full">
+<span class="font-label-sm text-label-sm text-on-error uppercase tracking-wider">Top Rated</span>
+</div>
+</div>
+<div class="p-4 pt-5">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-sm text-headline-sm text-primary">Aesthetic Aura Salon</h3>
+<div class="flex items-center gap-1 bg-[#F4F4F4] px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[#D4AF37] text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-primary">4.8</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-3">(120+ reviews) • 1.2 km away</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-3 py-1 rounded-full bg-[#D4AF37] bg-opacity-5 text-[#D4AF37] font-label-sm text-label-sm">Hair</span>
+<span class="px-3 py-1 rounded-full bg-[#D4AF37] bg-opacity-5 text-[#D4AF37] font-label-sm text-label-sm">Makeup</span>
+</div>
+<div class="flex justify-between items-center pt-4 border-t border-surface-container-highest">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Starts at</span>
+<span class="font-body-lg text-body-lg text-primary font-semibold">₹499</span>
+</div>
+<button class="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">Book</button>
+</div>
+</div>
+</div>
+<!-- Salon Card 2 -->
+<div class="flex flex-col bg-surface rounded-[16px] overflow-hidden cursor-pointer group">
+<div class="relative w-full aspect-video rounded-[16px] overflow-hidden">
+<img alt="Spa Interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A pristine, minimalist spa room with a massage table covered in crisp white linens. Soft, diffused lighting, a small vase with pale pink flowers, light cream textured walls. Serene, calming, premium luxury spa vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuIDDM6xhwQaAuAfVOKeCal15utAqrDYIh-AKH8IijJ7SQiS2f3KFrTL0HAgaJ3WQCFGMy8kkLVrqkNaXjpCQ_5Y7ZqApBW4CB_UwMBGhkwYNnsHwCF7fh4XYCV5au2OQSGw2xtNWjxIObxS-HO3yv-AX8A9_bY4QTRImujtlv9d8ZAp87ydL3mtIMmdkB_kAVkBmnvtFvPfx9GP_8hi0j38O-AKxjOWhKAfZB6PR20Asrgm-gvY2Taqpfp8PmiahHtKNyinmKtujd"/>
+<div class="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm rounded-full p-2 flex items-center justify-center hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-primary">favorite</span>
+</div>
+</div>
+<div class="p-4 pt-5">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-sm text-headline-sm text-primary">The Serenity Spa</h3>
+<div class="flex items-center gap-1 bg-[#F4F4F4] px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[#D4AF37] text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-primary">4.9</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-3">(85+ reviews) • 2.5 km away</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-3 py-1 rounded-full bg-[#D4AF37] bg-opacity-5 text-[#D4AF37] font-label-sm text-label-sm">Massage</span>
+<span class="px-3 py-1 rounded-full bg-[#D4AF37] bg-opacity-5 text-[#D4AF37] font-label-sm text-label-sm">Facial</span>
+</div>
+<div class="flex justify-between items-center pt-4 border-t border-surface-container-highest">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Starts at</span>
+<span class="font-body-lg text-body-lg text-primary font-semibold">₹1299</span>
+</div>
+<button class="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">Book</button>
+</div>
+</div>
+</div>
+<!-- Salon Card 3 -->
+<div class="flex flex-col bg-surface rounded-[16px] overflow-hidden cursor-pointer group">
+<div class="relative w-full aspect-video rounded-[16px] overflow-hidden">
+<img alt="Nail Bar Interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A modern nail bar interior in a luxury salon. Neatly arranged colorful polish bottles on pale wooden shelves, comfortable light beige seating, bright overhead lighting. Clean, sophisticated, elegant setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrTV7uYiP97WMnOyhETw2X4mimwnno5ed2g4DK4xvWioZ5iIAA9yogJ1C7q5ldkvHEPbzQdyhYAxH5mCh2PdTIdl5_9rmpBgraYb3bXtwCdLU76Zlz-I5Z7u-R6ymJU8SHUJe6uyegw5rug3v-j9vLyYPYg3aEWzgxMAQuU4_8hEZebvw5Rn_8IP3xnwkuLqVA00DGCRud0kuY3z8uRaWS2m_wZedbyxeNDWfgxN1xMPpJTWaip5G1uept8b8VpIgPD7gGXMlXHJtm"/>
+<div class="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm rounded-full p-2 flex items-center justify-center hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-primary">favorite</span>
+</div>
+<div class="absolute top-4 left-4 bg-[#E07A5F] bg-opacity-90 backdrop-blur-sm px-3 py-1 rounded-full">
+<span class="font-label-sm text-label-sm text-on-error uppercase tracking-wider">New</span>
+</div>
+</div>
+<div class="p-4 pt-5">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-sm text-headline-sm text-primary">Gloss &amp; Glamour</h3>
+<div class="flex items-center gap-1 bg-[#F4F4F4] px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[#D4AF37] text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-primary">4.6</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-3">(40+ reviews) • 3.0 km away</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-3 py-1 rounded-full bg-[#D4AF37] bg-opacity-5 text-[#D4AF37] font-label-sm text-label-sm">Nails</span>
+</div>
+<div class="flex justify-between items-center pt-4 border-t border-surface-container-highest">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Starts at</span>
+<span class="font-body-lg text-body-lg text-primary font-semibold">₹299</span>
+</div>
+<button class="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">Book</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container-lowest dark:bg-inverse-surface shadow-[0_-4px_20px_rgba(0,0,0,0.04)] rounded-t-xl">
+<!-- Explore (Active) -->
+<div class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 cursor-pointer scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-sm text-label-sm mt-1">Explore</span>
+</div>
+<!-- Bookings -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-sm text-label-sm mt-1">Bookings</span>
+</div>
+<!-- Favorites -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-sm text-label-sm mt-1">Favorites</span>
+</div>
+<!-- Profile -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</div>
+</nav>
+<script>
+        // Simple scroll effect for top app bar shadow
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-sm');
+            } else {
+                header.classList.remove('shadow-sm');
+            }
+        });
+    </script>
+</body></html>
