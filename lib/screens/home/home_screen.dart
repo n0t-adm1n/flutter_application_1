@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../widgets/cards.dart';
 import '../salon_profile/salon_profile_screen.dart';
+import '../profile/profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,6 +34,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return AppBar(
       backgroundColor: AppTheme.cream,
       elevation: 0,
@@ -64,12 +67,26 @@ class HomeScreen extends StatelessWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 20.0),
-          child: CircleAvatar(
-            radius: 20,
-            backgroundImage: const NetworkImage(
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuB21q_fVb-XWUmlKMOloERrZ43wRWDUDg-3itqQCipgQLdQIUe3WlyqENYH-cDO9eD-tDtAZdgEKyusjWdAd-tLqQPNum75YfzWz66QBTFdnr1gVFyIPQFfbiker6qdS1wW00_ENGZTdGq2ySjRPs_loKVv3KR-XEQMBK97GnUhzpWJjfa6qDC7ELrEkB1Nnhjokiht1Ia_VdEtqqAf71kJyu3hVsmkwex6Uc2y2kLDOKeDhMswEEam5m9JVeU29eE-3tWjJy_G_5V4',
+          child: Material(
+            shape: const CircleBorder(),
+            clipBehavior: Clip.hardEdge,
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: user?.photoURL != null 
+                    ? NetworkImage(user!.photoURL!) 
+                    : null,
+                backgroundColor: Colors.grey[300],
+                child: user?.photoURL == null ? const Icon(Icons.person, color: Colors.grey) : null,
+              ),
             ),
-            backgroundColor: Colors.grey[300],
           ),
         ),
       ],
