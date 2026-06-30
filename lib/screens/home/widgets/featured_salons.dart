@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 import '../../../widgets/cards.dart';
-import '../../salon_profile/salon_profile_screen.dart';
+import '../../branch_detail/branch_detail_screen.dart';
 import '../../../models/branch_model.dart';
 import '../../../repositories/branch_repository.dart';
 
@@ -55,7 +55,9 @@ class FeaturedSalons extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SalonProfileScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => BranchDetailScreen(branchId: branch.id),
+                    ),
                   );
                 },
               )).toList(),
