@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
+import '../../services/db_seeder.dart';
 import 'widgets/home_app_bar.dart';
 import 'widgets/mobile_header.dart';
 import 'widgets/search_filter.dart';
@@ -32,6 +33,17 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: const HomeBottomNav(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await DbSeeder.seedBranches();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Dummy Data Injected!')),
+            );
+          }
+        },
+        child: const Icon(Icons.dataset),
+      ),
     );
   }
 }
