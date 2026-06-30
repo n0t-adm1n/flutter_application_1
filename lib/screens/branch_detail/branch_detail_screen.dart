@@ -4,6 +4,8 @@ import '../../widgets/buttons.dart';
 import '../booking/booking_screen.dart';
 import '../../models/branch_model.dart';
 import '../../repositories/branch_repository.dart';
+import '../../models/service_model.dart';
+import '../../repositories/service_repository.dart';
 
 class BranchDetailScreen extends StatelessWidget {
   final String branchId;
@@ -41,7 +43,7 @@ class BranchDetailScreen extends StatelessWidget {
                       const SizedBox(height: 24),
                       _buildWorkingHours(context, branch),
                       const SizedBox(height: 24),
-                      _buildServiceList(context),
+                      _buildServiceList(context, branch),
                     ],
                   ),
                 ),
@@ -285,30 +287,49 @@ class BranchDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceList(BuildContext context) {
+  Widget _buildServiceList(BuildContext context, Branch branch) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Featured Services', style: Theme.of(context).textTheme.headlineSmall),
+        Text('Services', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 16),
-        _buildServiceCard(
-          context,
-          title: 'Luxe Hair Spa',
-          description:
-              'A deeply nourishing treatment using premium oils to restore shine and vitality to damaged hair. Includes a relaxing scalp massage.',
-          time: '45 mins',
-          price: '₹1,200',
-          isPopular: true,
-        ),
-        const SizedBox(height: 16),
-        _buildServiceCard(
-          context,
-          title: 'Signature Balayage',
-          description:
-              'Hand-painted highlights tailored to your natural hair pattern for a seamless, sun-kissed look. Toner included.',
-          time: '120 mins',
-          price: '₹4,500',
-          isPopular: false,
+        FutureBuilder<List<ServiceModel>>(
+          future: ServiceRepository().getServicesByBranch(branch.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24.0),
+                child: Text('No services currently available.'),
+              );
+            }
+
+            final services = snapshot.data!;
+
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              itemCount: services.length,
+              itemBuilder: (context, index) {
+                final service = services[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: _buildServiceCard(
+                    context,
+                    title: service.name,
+                    description: service.description,
+                    time: '${service.duration} mins',
+                    price: '₹${service.price.toStringAsFixed(0)}',
+                    isPopular: false,
+                  ),
+                );
+              },
+            );
+          },
         ),
       ],
     );
