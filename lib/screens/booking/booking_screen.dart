@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/theme.dart';
 import '../../models/service_model.dart';
 import '../../models/booking_model.dart';
@@ -200,6 +201,16 @@ class _BookingScreenState extends State<BookingScreen> {
                   onPressed: _isLoading ? null : () async {
                     if (selectedDate == null || selectedTimeSlot == null) return;
                     
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user == null) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please log in to confirm your booking.')),
+                        );
+                      }
+                      return;
+                    }
+
                     setState(() => _isLoading = true);
 
                     try {
@@ -227,8 +238,9 @@ class _BookingScreenState extends State<BookingScreen> {
                       final endTime = startTime.add(Duration(minutes: widget.totalDuration));
 
                       final customerSnapshot = {
-                        'uid': 'guest_user',
-                        'name': 'Guest',
+                        'uid': user.uid,
+                        'name': user.displayName ?? 'Customer',
+                        'email': user.email ?? '',
                       };
 
                       final servicesSnapshot = widget.selectedServices.map((s) => s.toFirestore()).toList();
@@ -236,7 +248,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
                       final booking = Booking(
                         id: '', 
-                        customerUid: 'guest_user',
+                        customerUid: user.uid,
                         branchId: widget.branchId,
                         bookingNumber: bookingNumber,
                         bookingDateLocal: bookingDateLocal,
