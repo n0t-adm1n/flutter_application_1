@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../models/service_model.dart';
+import '../../models/booking_model.dart';
+import '../../repositories/booking_repository.dart';
 
 class BookingScreen extends StatefulWidget {
   final String branchId;
@@ -23,6 +25,7 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   DateTime? selectedDate;
   String? selectedTimeSlot;
+  bool _isLoading = false;
 
   final List<String> timeSlots = [
     '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
@@ -194,8 +197,79 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
               child: SafeArea(
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Confirm Booking Action
+                  onPressed: _isLoading ? null : () async {
+                    if (selectedDate == null || selectedTimeSlot == null) return;
+                    
+                    setState(() => _isLoading = true);
+
+                    try {
+                      // Parse time: "10:30 AM"
+                      final timeParts = selectedTimeSlot!.split(' ');
+                      final hm = timeParts[0].split(':');
+                      int hour = int.parse(hm[0]);
+                      int minute = int.parse(hm[1]);
+                      final isPM = timeParts[1] == 'PM';
+                      
+                      if (isPM && hour != 12) hour += 12;
+                      if (!isPM && hour == 12) hour = 0;
+
+                      final bookingNumber = DateTime.now().millisecondsSinceEpoch.toString();
+                      final bookingDateLocal = '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}';
+
+                      final startTime = DateTime(
+                        selectedDate!.year,
+                        selectedDate!.month,
+                        selectedDate!.day,
+                        hour,
+                        minute,
+                      );
+                      
+                      final endTime = startTime.add(Duration(minutes: widget.totalDuration));
+
+                      final customerSnapshot = {
+                        'uid': 'guest_user',
+                        'name': 'Guest',
+                      };
+
+                      final servicesSnapshot = widget.selectedServices.map((s) => s.toFirestore()).toList();
+                      final totalPrice = widget.selectedServices.fold(0.0, (sum, item) => sum + item.price);
+
+                      final booking = Booking(
+                        id: '', 
+                        customerUid: 'guest_user',
+                        branchId: widget.branchId,
+                        bookingNumber: bookingNumber,
+                        bookingDateLocal: bookingDateLocal,
+                        startTime: startTime,
+                        endTime: endTime,
+                        totalPrice: totalPrice,
+                        status: BookingStatus.pending,
+                        paymentStatus: PaymentStatus.pending,
+                        customerSnapshot: customerSnapshot,
+                        servicesSnapshot: servicesSnapshot,
+                        createdAt: DateTime.now(),
+                        updatedAt: DateTime.now(),
+                      );
+
+                      await BookingRepository().createBooking(booking);
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Booking Confirmed!')),
+                        );
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e')),
+                        );
+                      }
+                    } finally {
+                      if (context.mounted) {
+                        setState(() => _isLoading = false);
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.charcoal,
@@ -204,7 +278,13 @@ class _BookingScreenState extends State<BookingScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Confirm Booking', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: _isLoading 
+                      ? const SizedBox(
+                          height: 20, 
+                          width: 20, 
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                        )
+                      : const Text('Confirm Booking', style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
               ),
             )
