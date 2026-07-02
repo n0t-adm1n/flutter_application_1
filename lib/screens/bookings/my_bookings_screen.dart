@@ -4,8 +4,26 @@ import '../../core/theme.dart';
 import '../../models/booking_model.dart';
 import '../../repositories/booking_repository.dart';
 
-class MyBookingsScreen extends StatelessWidget {
+class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
+
+  @override
+  State<MyBookingsScreen> createState() => _MyBookingsScreenState();
+}
+
+class _MyBookingsScreenState extends State<MyBookingsScreen> {
+  late Stream<List<Booking>> _bookingsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _bookingsStream = BookingRepository().getUserBookings(user.uid);
+    } else {
+      _bookingsStream = const Stream.empty();
+    }
+  }
 
   String _formatDateTime(DateTime dt) {
     final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -48,7 +66,7 @@ class MyBookingsScreen extends StatelessWidget {
       body: user == null
           ? const Center(child: Text('Please log in to view your bookings.'))
           : StreamBuilder<List<Booking>>(
-              stream: BookingRepository().getUserBookings(user.uid),
+              stream: _bookingsStream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
