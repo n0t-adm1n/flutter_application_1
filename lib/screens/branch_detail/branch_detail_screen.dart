@@ -108,7 +108,22 @@ class _BranchDetailScreenState extends State<BranchDetailScreen> {
                       ],
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final branch = await _branchFuture;
+                        if (branch != null && context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BookingScreen(
+                                branchId: widget.branchId,
+                                branchName: branch.name,
+                                selectedServices: selectedServices.toList(),
+                                totalDuration: totalDuration,
+                              ),
+                            ),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.charcoal,
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -157,6 +172,7 @@ class _BranchDetailScreenState extends State<BranchDetailScreen> {
         background: Stack(
           fit: StackFit.expand,
           children: [
+            // TODO: Replace local placeholder image with Firebase Storage network image URL once vendor upload is implemented.
             Image.network(
               'https://lh3.googleusercontent.com/aida-public/AB6AXuAyRTwQfSH-mQqWJYCAnXkn69jKH2Ga0ytG6hrQMzrV7kNh4rWPQAI1SuV_YlZrgK_6-JK_oTGvu26p5KMvJZ4bEeSTg7uamBGIxb39CGgxDdjAXkkJYQI3YRV3czNOclzTMH-iuhy9tfM_HIrmDRD4WmWJGuaJ1Tci0kBHhNU8x0zcJdpocZ8nMBXF83cEXx9NhvCymf_Nsnr_RBak3obouc8MWnTL5plmmIOhb-Z0juNlNHDwXck0E-5ilmQB3H2F319ZGWqDmTQu',
               fit: BoxFit.cover,

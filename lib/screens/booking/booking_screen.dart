@@ -1,403 +1,214 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
+import '../../models/service_model.dart';
 
-class BookingScreen extends StatelessWidget {
-  const BookingScreen({super.key});
+class BookingScreen extends StatefulWidget {
+  final String branchId;
+  final String branchName;
+  final List<ServiceModel> selectedServices;
+  final int totalDuration;
+
+  const BookingScreen({
+    super.key,
+    required this.branchId,
+    required this.branchName,
+    required this.selectedServices,
+    required this.totalDuration,
+  });
+
+  @override
+  State<BookingScreen> createState() => _BookingScreenState();
+}
+
+class _BookingScreenState extends State<BookingScreen> {
+  DateTime? selectedDate;
+  String? selectedTimeSlot;
+
+  final List<String> timeSlots = [
+    '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+    '12:00 PM', '12:30 PM', '01:00 PM', '01:30 PM',
+    '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
+    '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM',
+    '06:00 PM'
+  ];
+
+  final List<String> months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  final List<String> weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       appBar: AppBar(
+        title: const Text('Select Date & Time', style: TextStyle(color: AppTheme.charcoal)),
         backgroundColor: AppTheme.cream,
         elevation: 0,
-        scrolledUnderElevation: 2,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.charcoal),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Book Appointment'),
-        centerTitle: true,
+        iconTheme: const IconThemeData(color: AppTheme.charcoal),
       ),
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildServiceSummary(context),
-                const SizedBox(height: 32),
-                _buildStylistSelector(context),
-                const SizedBox(height: 32),
-                _buildDateTimeMatrix(context),
-              ],
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              widget.branchName,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.charcoal,
+                  ),
             ),
           ),
-          _buildBottomCheckoutSheet(context),
-        ],
-      ),
-    );
-  }
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 80,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 7,
+              itemBuilder: (context, index) {
+                final date = DateTime.now().add(Duration(days: index));
+                final isSelected = selectedDate != null && 
+                    selectedDate!.year == date.year && 
+                    selectedDate!.month == date.month && 
+                    selectedDate!.day == date.day;
+                
+                String month = months[date.month - 1];
+                String weekday = weekdays[date.weekday - 1];
 
-  Widget _buildServiceSummary(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuBDQ6YTzv0JrpgWuNCX40ci8cn_h9oXX31_k8zj9Hbasl2PQ_-LwKZAxJl1lywitOeFBgznVifxUVHeO2zEah1-JmPdLAxByDvgPwNpfpca_Qh8-RjGrNxS__ipOwgWE5nREGzeYQBzURFq50fL8bA9m13T0iU5ntwVABfgWzvY4K3tU5zdXttRz_QlMsgDmszHsN2y2V62840X4JbXFUrNMaB5nI9ZVnngDzacCrwUALYncqpgv6VPgJ4xy-lolh6IH0LsV79hDrn1',
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceGray,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Text(
-                    'Hair Styling',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text('Balayage & Blowout', style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.schedule, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      '120 mins',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedDate = date;
+                    });
+                  },
+                  child: Container(
+                    width: 70,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppTheme.charcoal : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected ? AppTheme.charcoal : Colors.grey[300]!,
+                      ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStylistSelector(BuildContext context) {
-    final stylists = [
-      {
-        'name': 'Emma',
-        'role': 'Senior Stylist',
-        'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuDLxILBRtEEiQu5svTGWf3TNKFyn5t6Y-7ZJEl_BBZo25oI_uPXI2UnywZqrQ6bkvAp8qPNjy0XdkrNPJ0Fmdtk3LVhKQ1Y6AMl9loAFwtJArw0HGxoaUNz8Ch5bSJM0tpDKcy9m0aaHoH4gBXJjxA50MNDgM4n033L3n04SuPHUMCMAXvOz9Mb_IiOc7JygwsryusLwKLPdLUKqudXH8kNC4GOCwdfuHLtGpTG8hSHR6wQzaB7IcIySI6TXl9_8p6Rgt1ujSseiCZn',
-        'selected': true,
-      },
-      {
-        'name': 'Liam',
-        'role': 'Master Colorist',
-        'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuCSP_HSXT-mrt9n1Pea2vlnGNuVjknb6G8lM6y2a2cuIN5YSWFl2WEs-3BEY1cuOvLoGw7cYWunEEbJAkQXqyR8IIVd-yraVkhgB6j64n4xb2oeQIr9DgQM2BOvjqs816exdIjKpVaUuJ9anOcgR2SEwwg40d92261Cwse_uBlwMSzRSTrtdEVJPYMQpPFmr8jerVpyyiggsHmhfUYHAilfhKfiw7o6vhG3VJmmPvpA2cgqDJHJ2YVEpeYlPzdoHdVYHdw0ujkheJsG',
-        'selected': false,
-      },
-      {
-        'name': 'Sophia',
-        'role': 'Stylist',
-        'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuDPGTTGZsJnb3OmbJuJNHOF6OrSthLwIojcWhOUefWa7FVBzikNWaCBb1a2UVR3WCz3kWwT1z1X2u_Sf_JVL8IdxFQgoOVljNVao1HGR3kexRfNDqIG7UL9gpMKoljAQJuu37x_rg8D3n5MuAteSwjNq8i-2l9ErjbmDpzon9P5QiHBC-JwNiHe9XPXti6zzo6W8H7VkGX4J9jQleXLJG0JFfK0EM80kaqQbkKFmaneYiXVAU4NGMY43bTlCDzDecUAkemMfyCqpcu8',
-        'selected': false,
-      },
-      {
-        'name': 'Anyone',
-        'role': 'Available',
-        'image': null,
-        'selected': false,
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Select Stylist', style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
-          child: Row(
-            children: stylists.map((stylist) {
-              final isSelected = stylist['selected'] as bool;
-              return Container(
-                margin: const EdgeInsets.only(right: 16),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.surfaceGray : Colors.transparent,
-                  border: Border.all(
-                    color: isSelected ? AppTheme.charcoal : Colors.transparent,
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Stack(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        if (stylist['image'] != null)
-                          CircleAvatar(
-                            radius: 32,
-                            backgroundImage: NetworkImage(stylist['image'] as String),
-                          )
-                        else
-                          const CircleAvatar(
-                            radius: 32,
-                            backgroundColor: AppTheme.surfaceGray,
-                            child: Icon(Icons.person, color: Colors.grey),
+                        Text(
+                          month,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white70 : Colors.grey,
+                            fontSize: 12,
                           ),
-                        if (isSelected)
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.check_circle, color: AppTheme.charcoal, size: 20),
-                            ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          date.day.toString(),
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppTheme.charcoal,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          weekday,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white70 : Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(stylist['name'] as String, style: Theme.of(context).textTheme.labelLarge),
-                    Text(
-                      stylist['role'] as String,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Text(
+              'Available Times',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // TODO: Replace hardcoded time slots with dynamic availability calculation based on branch working hours and existing Firestore bookings
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 2.5,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: timeSlots.length,
+              itemBuilder: (context, index) {
+                final slot = timeSlots[index];
+                final isSelected = selectedTimeSlot == slot;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedTimeSlot = slot;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppTheme.charcoal : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? AppTheme.charcoal : Colors.grey[300]!,
+                      ),
                     ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateTimeMatrix(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Select Date & Time', style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 16),
-        // Dates
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildDateItem(context, 'Mon', '12', false),
-              _buildDateItem(context, 'Tue', '13', true),
-              _buildDateItem(context, 'Wed', '14', false),
-              _buildDateItem(context, 'Thu', '15', false),
-              _buildDateItem(context, 'Fri', '16', false),
-            ],
-          ),
-        ),
-        const SizedBox(height: 32),
-        // Morning
-        Row(
-          children: [
-            const Icon(Icons.light_mode, size: 18, color: Colors.grey),
-            const SizedBox(width: 4),
-            Text('Morning', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.grey)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            _buildTimeItem(context, '09:00 AM', false, false),
-            _buildTimeItem(context, '09:30 AM', false, false),
-            _buildTimeItem(context, '10:00 AM', false, true),
-            _buildTimeItem(context, '10:30 AM', true, false),
-            _buildTimeItem(context, '11:00 AM', false, false),
-            _buildTimeItem(context, '11:30 AM', false, false),
-          ],
-        ),
-        const SizedBox(height: 24),
-        // Afternoon
-        Row(
-          children: [
-            const Icon(Icons.wb_sunny, size: 18, color: Colors.grey),
-            const SizedBox(width: 4),
-            Text('Afternoon', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.grey)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            _buildTimeItem(context, '12:00 PM', false, false),
-            _buildTimeItem(context, '12:30 PM', false, false),
-            _buildTimeItem(context, '01:00 PM', false, true),
-            _buildTimeItem(context, '01:30 PM', false, true),
-            _buildTimeItem(context, '02:00 PM', false, false),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateItem(BuildContext context, String day, String date, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 16),
-      width: 64,
-      height: 80,
-      decoration: BoxDecoration(
-        color: isSelected ? AppTheme.charcoal : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isSelected ? AppTheme.charcoal : Colors.transparent),
-        boxShadow: isSelected
-            ? [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
-                )
-              ]
-            : null,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            day,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: isSelected ? Colors.white70 : Colors.grey,
-                ),
-          ),
-          Text(
-            date,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: isSelected ? Colors.white : AppTheme.charcoal,
-                ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      slot,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : AppTheme.charcoal,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTimeItem(BuildContext context, String time, bool isSelected, bool isDisabled) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? AppTheme.charcoal : (isDisabled ? Colors.grey[200] : Colors.white),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isSelected ? AppTheme.charcoal : Colors.transparent,
-        ),
-      ),
-      child: Text(
-        time,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: isSelected
-                  ? Colors.white
-                  : (isDisabled ? Colors.grey : AppTheme.charcoal),
-              decoration: isDisabled ? TextDecoration.lineThrough : null,
-            ),
-      ),
-    );
-  }
-
-  Widget _buildBottomCheckoutSheet(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 40,
-              offset: const Offset(0, -8),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 48, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4))),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Service Fee:', style: Theme.of(context).textTheme.bodyMedium),
-                Text('₹1,200', style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Platform Fee:', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
-                Text('₹25', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Partial Advance Deposit:', style: Theme.of(context).textTheme.headlineSmall),
-                Text('₹300', style: Theme.of(context).textTheme.headlineSmall),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.charcoal,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 4,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Proceed to Secure Pay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.lock, size: 18),
+      bottomNavigationBar: (selectedDate != null && selectedTimeSlot != null)
+          ? Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Remaining ₹925 to be paid at venue.',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
+              child: SafeArea(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Confirm Booking Action
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.charcoal,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Confirm Booking', style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }
