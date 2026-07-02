@@ -7,17 +7,36 @@ import '../../repositories/branch_repository.dart';
 import '../../models/service_model.dart';
 import '../../repositories/service_repository.dart';
 
-class BranchDetailScreen extends StatelessWidget {
+class BranchDetailScreen extends StatefulWidget {
   final String branchId;
   
   const BranchDetailScreen({super.key, required this.branchId});
+
+  @override
+  State<BranchDetailScreen> createState() => _BranchDetailScreenState();
+}
+
+class _BranchDetailScreenState extends State<BranchDetailScreen> {
+  Set<ServiceModel> selectedServices = {};
+  late Future<Branch?> _branchFuture;
+  late Future<List<ServiceModel>> _servicesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _branchFuture = BranchRepository().getBranchById(widget.branchId);
+    _servicesFuture = ServiceRepository().getServicesByBranch(widget.branchId);
+  }
+
+  double get totalPrice => selectedServices.fold(0, (sum, item) => sum + item.price);
+  int get totalDuration => selectedServices.fold(0, (sum, item) => sum + item.duration);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       body: FutureBuilder<Branch?>(
-        future: BranchRepository().getBranchById(branchId),
+        future: _branchFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -52,6 +71,58 @@ class BranchDetailScreen extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar: selectedServices.isNotEmpty
+          ? Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Total: ₹${totalPrice.toStringAsFixed(0)}',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.charcoal,
+                              ),
+                        ),
+                        Text(
+                          'Duration: $totalDuration mins',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.grey,
+                              ),
+                        ),
+                      ],
+                    ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.charcoal,
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Book Now', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : null,
     );
   }
 
@@ -294,7 +365,7 @@ class BranchDetailScreen extends StatelessWidget {
         Text('Services', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 16),
         FutureBuilder<List<ServiceModel>>(
-          future: ServiceRepository().getServicesByBranch(branch.id),
+          future: _servicesFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -320,10 +391,7 @@ class BranchDetailScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: _buildServiceCard(
                     context,
-                    title: service.name,
-                    description: service.description,
-                    time: '${service.duration} mins',
-                    price: '₹${service.price.toStringAsFixed(0)}',
+                    service: service,
                     isPopular: false,
                   ),
                 );
@@ -337,95 +405,109 @@ class BranchDetailScreen extends StatelessWidget {
 
   Widget _buildServiceCard(
     BuildContext context, {
-    required String title,
-    required String description,
-    required String time,
-    required String price,
+    required ServiceModel service,
     required bool isPopular,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.headlineSmall),
-                    if (isPopular) ...[
+    final isSelected = selectedServices.contains(service);
+    return InkWell(
+      onTap: () {
+        setState(() {
+          if (isSelected) {
+            selectedServices.remove(service);
+          } else {
+            selectedServices.add(service);
+          }
+        });
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.cream : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isSelected ? AppTheme.charcoal : Colors.grey[200]!),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(service.name, style: Theme.of(context).textTheme.headlineSmall),
+                      if (isPopular) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(color: Colors.amber.withValues(alpha: 0.2)),
+                          ),
+                          child: Text(
+                            'POPULAR',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.amber[800],
+                                  fontSize: 10,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    service.description,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(Icons.schedule, size: 16, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${service.duration} mins',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: Colors.grey,
+                            ),
+                      ),
                       const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(color: Colors.amber.withValues(alpha: 0.2)),
-                        ),
-                        child: Text(
-                          'POPULAR',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: Colors.amber[800],
-                                fontSize: 10,
-                              ),
-                        ),
+                      Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
+                      const SizedBox(width: 8),
+                      Text(
+                        '₹${service.price.toStringAsFixed(0)}',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.charcoal,
+                            ),
                       ),
                     ],
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  description,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Icon(Icons.schedule, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      time,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: Colors.grey,
-                          ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
-                    const SizedBox(width: 8),
-                    Text(
-                      price,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.charcoal,
-                          ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          SecondaryButton(
-            text: 'Add',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BookingScreen()),
-              );
-            },
-          ),
-        ],
+            const SizedBox(width: 16),
+            Checkbox(
+              value: isSelected,
+              activeColor: AppTheme.charcoal,
+              onChanged: (bool? value) {
+                setState(() {
+                  if (value == true) {
+                    selectedServices.add(service);
+                  } else {
+                    selectedServices.remove(service);
+                  }
+                });
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
