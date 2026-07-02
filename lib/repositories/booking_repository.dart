@@ -15,4 +15,13 @@ class BookingRepository {
       throw Exception('Failed to create booking: $e');
     }
   }
+
+  Stream<List<Booking>> getUserBookings(String uid) {
+    return _firestore
+        .collection('bookings')
+        .where('customerUid', isEqualTo: uid)
+        .orderBy('startTime', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => Booking.fromFirestore(doc)).toList());
+  }
 }
