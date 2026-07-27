@@ -52,6 +52,7 @@ class FeaturedSalons extends StatelessWidget {
                 subtitle: '(${branch.reviewCount}+ reviews) • ${branch.city}',
                 imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDOAn8_CVoyho4d7_7wY08NM-BfuKa0KlfFZEHcI0qKLVD0De4ASHsn_kWhdOEkRDDSSthW1b7tgjETa-pKPe6WEtZJ_-gprdk0r_MZ_f8dO0xFBkGHqwxJOlpz92Zf319p16m2fUxVXdKKxd12hNU_aXR8u54ASXIcMKH1_HD738YtUj1yypu18TfMaiV6a64lrQRUGAAXQsLyZNu-Mbb55pYLChG-qaHJ5ko6tM0oEdK1xawPekPYo8Qci-gtTxpX1f-dDBxNY3Om', // Placeholder image
                 badgeText: branch.rating > 4.5 ? 'TOP RATED' : null,
+                vendorType: branch.vendorType,
                 onTap: () {
                   Navigator.push(
                     context,

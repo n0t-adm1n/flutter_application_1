@@ -6,6 +6,7 @@ class MarketplaceCard extends StatelessWidget {
   final String subtitle;
   final String imageUrl;
   final String? badgeText;
+  final String? vendorType;
   final VoidCallback? onTap;
 
   const MarketplaceCard({
@@ -14,8 +15,42 @@ class MarketplaceCard extends StatelessWidget {
     required this.subtitle,
     required this.imageUrl,
     this.badgeText,
+    this.vendorType,
     this.onTap,
   });
+
+  Widget _buildVendorBadge(String type) {
+    final isFreelancer = type == 'freelancer';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isFreelancer ? Colors.purple.shade50 : Colors.teal.shade50,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: isFreelancer ? Colors.purple.shade200 : Colors.teal.shade200,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isFreelancer ? Icons.home : Icons.store,
+            size: 14,
+            color: isFreelancer ? Colors.purple : Colors.teal,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            isFreelancer ? 'Home Service' : 'At Salon',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isFreelancer ? Colors.purple : Colors.teal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +106,10 @@ class MarketplaceCard extends StatelessWidget {
                     title,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
+                  if (vendorType != null) ...[
+                    const SizedBox(height: 8),
+                    _buildVendorBadge(vendorType!),
+                  ],
                   const SizedBox(height: 8),
                   Text(
                     subtitle,

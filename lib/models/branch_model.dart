@@ -13,6 +13,7 @@ class Branch {
   final Map<String, dynamic> workingHours;
   final bool isActive;
   final DateTime updatedAt;
+  final String vendorType;
 
   Branch({
     required this.id,
@@ -27,6 +28,7 @@ class Branch {
     required this.workingHours,
     required this.isActive,
     required this.updatedAt,
+    this.vendorType = 'parlor',
   });
 
   factory Branch.fromFirestore(DocumentSnapshot doc) {
@@ -64,6 +66,7 @@ class Branch {
       workingHours: workingHoursMap,
       isActive: data['isActive'] as bool? ?? false,
       updatedAt: updatedAtValue,
+      vendorType: data['vendorType'] as String? ?? 'parlor',
     );
   }
 
@@ -80,6 +83,7 @@ class Branch {
       'workingHours': workingHours,
       'isActive': isActive,
       'updatedAt': Timestamp.fromDate(updatedAt),
+      'vendorType': vendorType,
     };
   }
 }
