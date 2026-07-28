@@ -117,6 +117,8 @@ class _BranchDetailScreenState extends State<BranchDetailScreen> {
                               builder: (context) => BookingScreen(
                                 branchId: widget.branchId,
                                 branchName: branch.name,
+                                vendorType: branch.vendorType,
+                                branchAddress: branch.city,
                                 selectedServices: selectedServices.toList(),
                                 totalDuration: totalDuration,
                               ),

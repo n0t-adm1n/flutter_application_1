@@ -10,11 +10,15 @@ class BookingScreen extends StatefulWidget {
   final String branchName;
   final List<ServiceModel> selectedServices;
   final int totalDuration;
+  final String vendorType;
+  final String branchAddress;
 
   const BookingScreen({
     super.key,
     required this.branchId,
     required this.branchName,
+    required this.vendorType,
+    required this.branchAddress,
     required this.selectedServices,
     required this.totalDuration,
   });
@@ -27,6 +31,13 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime? selectedDate;
   String? selectedTimeSlot;
   bool _isLoading = false;
+  final TextEditingController _customerAddressController = TextEditingController();
+
+  @override
+  void dispose() {
+    _customerAddressController.dispose();
+    super.dispose();
+  }
 
   final List<String> timeSlots = [
     '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
@@ -197,21 +208,54 @@ class _BookingScreenState extends State<BookingScreen> {
                 ],
               ),
               child: SafeArea(
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : () async {
-                    if (selectedDate == null || selectedTimeSlot == null) return;
-                    
-                    final user = FirebaseAuth.instance.currentUser;
-                    if (user == null) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please log in to confirm your booking.')),
-                        );
-                      }
-                      return;
-                    }
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.vendorType == 'freelancer')
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: TextFormField(
+                          controller: _customerAddressController,
+                          decoration: const InputDecoration(
+                            labelText: 'Your Service Address',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Text(
+                          'Salon Address: ${widget.branchAddress}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : () async {
+                          if (selectedDate == null || selectedTimeSlot == null) return;
+                          
+                          if (widget.vendorType == 'freelancer' && _customerAddressController.text.trim().isEmpty) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please enter your service address.')),
+                              );
+                            }
+                            return;
+                          }
+                          
+                          final user = FirebaseAuth.instance.currentUser;
+                          if (user == null) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please log in to confirm your booking.')),
+                              );
+                            }
+                            return;
+                          }
 
-                    setState(() => _isLoading = true);
+                          setState(() => _isLoading = true);
 
                     try {
                       // Parse time: "10:30 AM"
@@ -259,6 +303,8 @@ class _BookingScreenState extends State<BookingScreen> {
                         paymentStatus: PaymentStatus.pending,
                         customerSnapshot: customerSnapshot,
                         servicesSnapshot: servicesSnapshot,
+                        serviceLocation: widget.vendorType == 'freelancer' ? 'at_home' : 'at_parlor',
+                        customerAddress: widget.vendorType == 'freelancer' ? _customerAddressController.text : '',
                         createdAt: DateTime.now(),
                         updatedAt: DateTime.now(),
                       );
@@ -297,6 +343,9 @@ class _BookingScreenState extends State<BookingScreen> {
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
                         )
                       : const Text('Confirm Booking', style: TextStyle(color: Colors.white, fontSize: 16)),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             )
