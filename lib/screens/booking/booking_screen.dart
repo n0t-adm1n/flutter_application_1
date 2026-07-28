@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/theme.dart';
 import '../../models/service_model.dart';
 import '../../models/booking_model.dart';
@@ -32,6 +33,59 @@ class _BookingScreenState extends State<BookingScreen> {
   String? selectedTimeSlot;
   bool _isLoading = false;
   final TextEditingController _customerAddressController = TextEditingController();
+
+  List<String> bookedSlots = [];
+  bool isLoadingSlots = false;
+
+  Future<void> fetchBookedSlots(DateTime date) async {
+    setState(() {
+      isLoadingSlots = true;
+      bookedSlots = [];
+      if (selectedTimeSlot != null && bookedSlots.contains(selectedTimeSlot)) {
+        selectedTimeSlot = null;
+      }
+    });
+
+    try {
+      final bookingDateLocal = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final snapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('branchId', isEqualTo: widget.branchId)
+          .where('bookingDateLocal', isEqualTo: bookingDateLocal)
+          .get();
+
+      List<String> slots = [];
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        if (data['status'] == 'cancelled') continue;
+        
+        final startTime = (data['startTime'] as Timestamp).toDate();
+        int hour = startTime.hour;
+        int minute = startTime.minute;
+        String ampm = hour >= 12 ? 'PM' : 'AM';
+        int hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+        String timeSlotString = '${hour12.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $ampm';
+        slots.add(timeSlotString);
+      }
+
+      if (mounted) {
+        setState(() {
+          bookedSlots = slots;
+          if (selectedTimeSlot != null && bookedSlots.contains(selectedTimeSlot)) {
+            selectedTimeSlot = null;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching booked slots: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoadingSlots = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -95,6 +149,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     setState(() {
                       selectedDate = date;
                     });
+                    fetchBookedSlots(date);
                   },
                   child: Container(
                     width: 70,
@@ -153,7 +208,9 @@ class _BookingScreenState extends State<BookingScreen> {
           const SizedBox(height: 16),
           // TODO: Replace hardcoded time slots with dynamic availability calculation based on branch working hours and existing Firestore bookings
           Expanded(
-            child: GridView.builder(
+            child: isLoadingSlots 
+                ? const Center(child: CircularProgressIndicator())
+                : GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
@@ -165,25 +222,33 @@ class _BookingScreenState extends State<BookingScreen> {
               itemBuilder: (context, index) {
                 final slot = timeSlots[index];
                 final isSelected = selectedTimeSlot == slot;
+                final isBooked = bookedSlots.contains(slot);
+                
                 return GestureDetector(
-                  onTap: () {
+                  onTap: isBooked ? null : () {
                     setState(() {
                       selectedTimeSlot = slot;
                     });
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isSelected ? AppTheme.charcoal : Colors.white,
+                      color: isBooked 
+                          ? Colors.grey[200] 
+                          : (isSelected ? AppTheme.charcoal : Colors.white),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected ? AppTheme.charcoal : Colors.grey[300]!,
+                        color: isBooked 
+                            ? Colors.grey[300]! 
+                            : (isSelected ? AppTheme.charcoal : Colors.grey[300]!),
                       ),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       slot,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : AppTheme.charcoal,
+                        color: isBooked 
+                            ? Colors.grey[400] 
+                            : (isSelected ? Colors.white : AppTheme.charcoal),
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
