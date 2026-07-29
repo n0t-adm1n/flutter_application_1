@@ -395,6 +395,48 @@ class _BookingScreenState extends State<BookingScreen> {
                       
                       final endTime = startTime.add(Duration(minutes: widget.totalDuration));
 
+                      // Pre-flight overlap check
+                      final startOfDay = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day);
+                      final endOfDay = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, 23, 59, 59, 999);
+                      
+                      final freshSnapshot = await FirebaseFirestore.instance
+                          .collection('bookings')
+                          .where('branchId', isEqualTo: widget.branchId)
+                          .where('startTime', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+                          .where('startTime', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+                          .get();
+
+                      List<Map<String, DateTime>> freshIntervals = [];
+                      for (var doc in freshSnapshot.docs) {
+                        final data = doc.data();
+                        if (data['status'] == 'cancelled') continue;
+                        
+                        freshIntervals.add({
+                          'start': (data['startTime'] as Timestamp).toDate(),
+                          'end': (data['endTime'] as Timestamp).toDate(),
+                        });
+                      }
+
+                      bool hasOverlap = false;
+                      for (var interval in freshIntervals) {
+                        if (startTime.isBefore(interval['end']!) && endTime.isAfter(interval['start']!)) {
+                          hasOverlap = true;
+                          break;
+                        }
+                      }
+
+                      if (hasOverlap) {
+                        if (context.mounted) {
+                          setState(() => _isLoading = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Sorry, this time slot was just booked by someone else. Please select another time.'),
+                            ),
+                          );
+                        }
+                        return; // Abort booking
+                      }
+
                       final customerSnapshot = {
                         'uid': user.uid,
                         'name': user.displayName ?? 'Customer',
