@@ -34,50 +34,53 @@ class _BookingScreenState extends State<BookingScreen> {
   bool _isLoading = false;
   final TextEditingController _customerAddressController = TextEditingController();
 
-  List<String> bookedSlots = [];
+  List<Map<String, DateTime>> bookedIntervals = [];
   bool isLoadingSlots = false;
 
-  Future<void> fetchBookedSlots(DateTime date) async {
+  Future<void> fetchBookings(DateTime date) async {
     setState(() {
       isLoadingSlots = true;
-      bookedSlots = [];
-      if (selectedTimeSlot != null && bookedSlots.contains(selectedTimeSlot)) {
-        selectedTimeSlot = null;
-      }
+      bookedIntervals = [];
+      selectedTimeSlot = null;
     });
 
     try {
-      final bookingDateLocal = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final startOfDay = DateTime(date.year, date.month, date.day);
+      final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
+      
       final snapshot = await FirebaseFirestore.instance
           .collection('bookings')
           .where('branchId', isEqualTo: widget.branchId)
-          .where('bookingDateLocal', isEqualTo: bookingDateLocal)
+          .where('startTime', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .where('startTime', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
           .get();
 
-      List<String> slots = [];
+      List<Map<String, DateTime>> intervals = [];
       for (var doc in snapshot.docs) {
         final data = doc.data();
         if (data['status'] == 'cancelled') continue;
         
         final startTime = (data['startTime'] as Timestamp).toDate();
-        int hour = startTime.hour;
-        int minute = startTime.minute;
-        String ampm = hour >= 12 ? 'PM' : 'AM';
-        int hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-        String timeSlotString = '${hour12.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $ampm';
-        slots.add(timeSlotString);
+        final endTime = (data['endTime'] as Timestamp).toDate();
+        
+        intervals.add({'start': startTime, 'end': endTime});
       }
 
       if (mounted) {
         setState(() {
-          bookedSlots = slots;
-          if (selectedTimeSlot != null && bookedSlots.contains(selectedTimeSlot)) {
-            selectedTimeSlot = null;
-          }
+          bookedIntervals = intervals;
         });
       }
     } catch (e) {
-      debugPrint('Error fetching booked slots: $e');
+      debugPrint('Error fetching bookings: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load availability. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -149,7 +152,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     setState(() {
                       selectedDate = date;
                     });
-                    fetchBookedSlots(date);
+                    fetchBookings(date);
                   },
                   child: Container(
                     width: 70,
@@ -222,7 +225,53 @@ class _BookingScreenState extends State<BookingScreen> {
               itemBuilder: (context, index) {
                 final slot = timeSlots[index];
                 final isSelected = selectedTimeSlot == slot;
-                final isBooked = bookedSlots.contains(slot);
+                
+                bool isAvailable = true;
+                if (selectedDate != null) {
+                  final timeParts = slot.split(' ');
+                  final hm = timeParts[0].split(':');
+                  int hour = int.parse(hm[0]);
+                  int minute = int.parse(hm[1]);
+                  final isPM = timeParts[1] == 'PM';
+                  
+                  if (isPM && hour != 12) hour += 12;
+                  if (!isPM && hour == 12) hour = 0;
+                  
+                  DateTime slotStart = DateTime(
+                    selectedDate!.year,
+                    selectedDate!.month,
+                    selectedDate!.day,
+                    hour,
+                    minute,
+                  );
+                  DateTime slotEnd = slotStart.add(Duration(minutes: widget.totalDuration));
+
+                  // 1. Define the absolute closing time for the day (e.g., 8:00 PM)
+                  DateTime closingTime = DateTime(
+                    selectedDate!.year,
+                    selectedDate!.month,
+                    selectedDate!.day,
+                    20, // 20 = 8:00 PM in 24-hour time
+                    0,
+                  );
+
+                  // 2. Boundary Check: Does the service run past closing time?
+                  if (slotEnd.isAfter(closingTime)) {
+                    isAvailable = false;
+                  } else {
+                    // 3. Overlap Check: Only check existing bookings if it fits in business hours
+                    for (var interval in bookedIntervals) {
+                      if (slotStart.isBefore(interval['end']!) && slotEnd.isAfter(interval['start']!)) {
+                        isAvailable = false;
+                        break;
+                      }
+                    }
+                  }
+                } else {
+                  isAvailable = false;
+                }
+                
+                final isBooked = !isAvailable;
                 
                 return GestureDetector(
                   onTap: isBooked ? null : () {
