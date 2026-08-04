@@ -34,62 +34,6 @@ class _BookingScreenState extends State<BookingScreen> {
   bool _isLoading = false;
   final TextEditingController _customerAddressController = TextEditingController();
 
-  List<Map<String, DateTime>> bookedIntervals = [];
-  bool isLoadingSlots = false;
-
-  Future<void> fetchBookings(DateTime date) async {
-    setState(() {
-      isLoadingSlots = true;
-      bookedIntervals = [];
-      selectedTimeSlot = null;
-    });
-
-    try {
-      final startOfDay = DateTime(date.year, date.month, date.day);
-      final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
-      
-      final snapshot = await FirebaseFirestore.instance
-          .collection('bookings')
-          .where('branchId', isEqualTo: widget.branchId)
-          .where('startTime', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-          .where('startTime', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
-          .get();
-
-      List<Map<String, DateTime>> intervals = [];
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        if (data['status'] == 'cancelled') continue;
-        
-        final startTime = (data['startTime'] as Timestamp).toDate();
-        final endTime = (data['endTime'] as Timestamp).toDate();
-        
-        intervals.add({'start': startTime, 'end': endTime});
-      }
-
-      if (mounted) {
-        setState(() {
-          bookedIntervals = intervals;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching bookings: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load availability. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoadingSlots = false;
-        });
-      }
-    }
-  }
-
   @override
   void dispose() {
     _customerAddressController.dispose();
@@ -152,7 +96,6 @@ class _BookingScreenState extends State<BookingScreen> {
                     setState(() {
                       selectedDate = date;
                     });
-                    fetchBookings(date);
                   },
                   child: Container(
                     width: 70,
@@ -211,9 +154,7 @@ class _BookingScreenState extends State<BookingScreen> {
           const SizedBox(height: 16),
           // TODO: Replace hardcoded time slots with dynamic availability calculation based on branch working hours and existing Firestore bookings
           Expanded(
-            child: isLoadingSlots 
-                ? const Center(child: CircularProgressIndicator())
-                : GridView.builder(
+            child: GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
@@ -226,78 +167,25 @@ class _BookingScreenState extends State<BookingScreen> {
                 final slot = timeSlots[index];
                 final isSelected = selectedTimeSlot == slot;
                 
-                bool isAvailable = true;
-                if (selectedDate != null) {
-                  final timeParts = slot.split(' ');
-                  final hm = timeParts[0].split(':');
-                  int hour = int.parse(hm[0]);
-                  int minute = int.parse(hm[1]);
-                  final isPM = timeParts[1] == 'PM';
-                  
-                  if (isPM && hour != 12) hour += 12;
-                  if (!isPM && hour == 12) hour = 0;
-                  
-                  DateTime slotStart = DateTime(
-                    selectedDate!.year,
-                    selectedDate!.month,
-                    selectedDate!.day,
-                    hour,
-                    minute,
-                  );
-                  DateTime slotEnd = slotStart.add(Duration(minutes: widget.totalDuration));
-
-                  // 1. Define the absolute closing time for the day (e.g., 8:00 PM)
-                  DateTime closingTime = DateTime(
-                    selectedDate!.year,
-                    selectedDate!.month,
-                    selectedDate!.day,
-                    20, // 20 = 8:00 PM in 24-hour time
-                    0,
-                  );
-
-                  // 2. Boundary Check: Does the service run past closing time?
-                  if (slotEnd.isAfter(closingTime)) {
-                    isAvailable = false;
-                  } else {
-                    // 3. Overlap Check: Only check existing bookings if it fits in business hours
-                    for (var interval in bookedIntervals) {
-                      if (slotStart.isBefore(interval['end']!) && slotEnd.isAfter(interval['start']!)) {
-                        isAvailable = false;
-                        break;
-                      }
-                    }
-                  }
-                } else {
-                  isAvailable = false;
-                }
-                
-                final isBooked = !isAvailable;
-                
                 return GestureDetector(
-                  onTap: isBooked ? null : () {
+                  onTap: () {
                     setState(() {
                       selectedTimeSlot = slot;
                     });
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isBooked 
-                          ? Colors.grey[200] 
-                          : (isSelected ? AppTheme.charcoal : Colors.white),
+                      color: isSelected ? AppTheme.charcoal : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isBooked 
-                            ? Colors.grey[300]! 
-                            : (isSelected ? AppTheme.charcoal : Colors.grey[300]!),
+                        color: isSelected ? AppTheme.charcoal : Colors.grey[300]!,
                       ),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       slot,
                       style: TextStyle(
-                        color: isBooked 
-                            ? Colors.grey[400] 
-                            : (isSelected ? Colors.white : AppTheme.charcoal),
+                        color: isSelected ? Colors.white : AppTheme.charcoal,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
@@ -394,48 +282,6 @@ class _BookingScreenState extends State<BookingScreen> {
                       );
                       
                       final endTime = startTime.add(Duration(minutes: widget.totalDuration));
-
-                      // Pre-flight overlap check
-                      final startOfDay = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day);
-                      final endOfDay = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, 23, 59, 59, 999);
-                      
-                      final freshSnapshot = await FirebaseFirestore.instance
-                          .collection('bookings')
-                          .where('branchId', isEqualTo: widget.branchId)
-                          .where('startTime', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-                          .where('startTime', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
-                          .get();
-
-                      List<Map<String, DateTime>> freshIntervals = [];
-                      for (var doc in freshSnapshot.docs) {
-                        final data = doc.data();
-                        if (data['status'] == 'cancelled') continue;
-                        
-                        freshIntervals.add({
-                          'start': (data['startTime'] as Timestamp).toDate(),
-                          'end': (data['endTime'] as Timestamp).toDate(),
-                        });
-                      }
-
-                      bool hasOverlap = false;
-                      for (var interval in freshIntervals) {
-                        if (startTime.isBefore(interval['end']!) && endTime.isAfter(interval['start']!)) {
-                          hasOverlap = true;
-                          break;
-                        }
-                      }
-
-                      if (hasOverlap) {
-                        if (context.mounted) {
-                          setState(() => _isLoading = false);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Sorry, this time slot was just booked by someone else. Please select another time.'),
-                            ),
-                          );
-                        }
-                        return; // Abort booking
-                      }
 
                       final customerSnapshot = {
                         'uid': user.uid,
