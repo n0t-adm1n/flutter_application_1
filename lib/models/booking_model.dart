@@ -52,6 +52,7 @@ class Booking {
   final String id;
   final String customerUid;
   final String branchId;
+  final String branchName;
   final String bookingNumber;
   final String bookingDateLocal;
   final DateTime startTime;
@@ -70,6 +71,7 @@ class Booking {
     required this.id,
     required this.customerUid,
     required this.branchId,
+    required this.branchName,
     required this.bookingNumber,
     required this.bookingDateLocal,
     required this.startTime,
@@ -118,6 +120,7 @@ class Booking {
       id: doc.id,
       customerUid: data['customerUid'] as String? ?? '',
       branchId: data['branchId'] as String? ?? '',
+      branchName: data['branchName'] as String? ?? 'Unknown Vendor',
       bookingNumber: data['bookingNumber'] as String? ?? '',
       bookingDateLocal: data['bookingDateLocal'] as String? ?? '',
       startTime: startTimeValue,
@@ -138,6 +141,7 @@ class Booking {
     return {
       'customerUid': customerUid,
       'branchId': branchId,
+      'branchName': branchName,
       'bookingNumber': bookingNumber,
       'bookingDateLocal': bookingDateLocal,
       'startTime': Timestamp.fromDate(startTime),

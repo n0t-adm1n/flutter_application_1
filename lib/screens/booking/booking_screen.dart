@@ -296,6 +296,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         id: '', 
                         customerUid: user.uid,
                         branchId: widget.branchId,
+                        branchName: widget.branchName,
                         bookingNumber: bookingNumber,
                         bookingDateLocal: bookingDateLocal,
                         startTime: startTime,

@@ -86,9 +86,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   itemBuilder: (context, index) {
                     final booking = bookings[index];
                     
-                    // Fallback since branchName isn't explicitly in the new model.
-                    final title = 'Booking #${booking.bookingNumber}';
-
                     return Card(
                       margin: const EdgeInsets.only(bottom: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -101,13 +98,27 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    title,
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        booking.branchName,
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.charcoal,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Booking #${booking.bookingNumber}',
+                                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Container(
@@ -128,7 +139,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 16),
                             Row(
                               children: [
                                 const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
