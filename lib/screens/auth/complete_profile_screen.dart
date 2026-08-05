@@ -99,6 +99,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter your mobile number';
                     }
+                    // Indian mobile numbers must be exactly 10 digits and start with 6, 7, 8, or 9
+                    final phoneRegex = RegExp(r'^[6-9]\d{9}$');
+                    if (!phoneRegex.hasMatch(value.trim())) {
+                      return 'Please enter a valid 10-digit Indian mobile number';
+                    }
                     return null;
                   },
                 ),
