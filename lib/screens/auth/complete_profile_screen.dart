@@ -15,10 +15,21 @@ class CompleteProfileScreen extends StatefulWidget {
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   String? _selectedCity;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill with Google display name if available
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.displayName != null) {
+      _nameController.text = user.displayName!;
+    }
+  }
 
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) {
@@ -34,7 +45,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       if (user != null) {
         await FirebaseFirestore.instance.collection('customers').doc(user.uid).set({
           'uid': user.uid,
-          'name': user.displayName,
+          'name': _nameController.text.trim(),
           'email': user.email,
           'phoneNumber': _phoneController.text.trim(),
           'address': _addressController.text.trim(),
@@ -64,6 +75,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
@@ -103,6 +115,21 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                TextFormField(
+                  controller: _nameController,
+                  keyboardType: TextInputType.name,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
