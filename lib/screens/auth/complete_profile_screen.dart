@@ -16,6 +16,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
+  String? _selectedCity;
   bool _isLoading = false;
 
   Future<void> _saveProfile() async {
@@ -33,6 +34,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         await FirebaseFirestore.instance.collection('customers').doc(user.uid).update({
           'phoneNumber': _phoneController.text.trim(),
           'address': _addressController.text.trim(),
+          'city': _selectedCity,
         });
         
         // Navigation is handled automatically by AuthWrapper in main.dart 
@@ -103,6 +105,29 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     final phoneRegex = RegExp(r'^[6-9]\d{9}$');
                     if (!phoneRegex.hasMatch(value.trim())) {
                       return 'Please enter a valid 10-digit Indian mobile number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedCity,
+                  decoration: const InputDecoration(
+                    labelText: 'City',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Kanpur', child: Text('Kanpur')),
+                    DropdownMenuItem(value: 'Lucknow', child: Text('Lucknow')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCity = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select your city';
                     }
                     return null;
                   },

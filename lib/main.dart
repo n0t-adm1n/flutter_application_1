@@ -74,8 +74,11 @@ class AuthWrapper extends StatelessWidget {
             final data = userSnapshot.data!.data() as Map<String, dynamic>?;
             final phoneNumber = data?['phoneNumber'] as String?;
             final address = data?['address'] as String?;
+            final city = data?['city'] as String?;
 
-            if (phoneNumber == null || phoneNumber.trim().isEmpty || address == null || address.trim().isEmpty) {
+            if (phoneNumber == null || phoneNumber.trim().isEmpty || 
+                address == null || address.trim().isEmpty ||
+                city == null || city.trim().isEmpty) {
               return const CompleteProfileScreen();
             }
 
