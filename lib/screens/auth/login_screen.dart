@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'complete_profile_screen.dart';
 import '../home/home_screen.dart';
 import '../../widgets/buttons.dart';
 import '../../core/theme.dart';
@@ -12,21 +15,43 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final AuthService _authService = AuthService();
   bool _isLoading = false;
 
-  Future<void> _handleGoogleSignIn() async {
+  Future<void> signInWithGoogle() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final credential = await _authService.signInWithGoogle();
-      if (credential != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        // User canceled
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        final DocumentReference userDocRef = FirebaseFirestore.instance.collection('customers').doc(user.uid);
+        final DocumentSnapshot userDoc = await userDocRef.get();
+
+        if (!userDoc.exists) {
+          // Create the document
+          await userDocRef.set({
+            'uid': user.uid,
+            'name': user.displayName,
+            'email': user.email,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -75,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
               else
                 PrimaryButton(
                   text: 'Sign in with Google',
-                  onPressed: _handleGoogleSignIn,
+                  onPressed: signInWithGoogle,
                 ),
             ],
           ),
