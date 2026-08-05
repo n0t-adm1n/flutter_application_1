@@ -63,12 +63,15 @@ class AuthWrapper extends StatelessWidget {
               );
             }
 
-            if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
-              // Wait for login screen to create the document
+            if (!userSnapshot.hasData) {
               return const Scaffold(
                 backgroundColor: AppTheme.cream,
                 body: Center(child: CircularProgressIndicator(color: AppTheme.charcoal)),
               );
+            }
+
+            if (!userSnapshot.data!.exists) {
+              return const CompleteProfileScreen();
             }
 
             final data = userSnapshot.data!.data() as Map<String, dynamic>?;

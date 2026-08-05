@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../home/home_screen.dart';
 import '../../core/theme.dart';
 import '../../widgets/buttons.dart';
@@ -31,11 +32,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('customers').doc(user.uid).update({
+        await FirebaseFirestore.instance.collection('customers').doc(user.uid).set({
+          'uid': user.uid,
+          'name': user.displayName,
+          'email': user.email,
           'phoneNumber': _phoneController.text.trim(),
           'address': _addressController.text.trim(),
           'city': _selectedCity,
-        });
+          'createdAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
         
         // Navigation is handled automatically by AuthWrapper in main.dart 
         // responding to the Firestore document update.
@@ -73,6 +78,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         title: const Text('Complete Profile'),
         backgroundColor: AppTheme.cream,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppTheme.charcoal),
+            onPressed: () async {
+              await GoogleSignIn().signOut();
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
