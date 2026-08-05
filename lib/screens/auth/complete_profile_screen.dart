@@ -39,7 +39,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           'phoneNumber': _phoneController.text.trim(),
           'address': _addressController.text.trim(),
           'city': _selectedCity,
-          'createdAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
         
         // Navigation is handled automatically by AuthWrapper in main.dart 

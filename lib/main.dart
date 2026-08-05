@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'core/theme.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/complete_profile_screen.dart';
@@ -60,6 +61,31 @@ class AuthWrapper extends StatelessWidget {
               return const Scaffold(
                 backgroundColor: AppTheme.cream,
                 body: Center(child: CircularProgressIndicator(color: AppTheme.charcoal)),
+              );
+            }
+
+            if (userSnapshot.hasError) {
+              return Scaffold(
+                backgroundColor: AppTheme.cream,
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Error loading profile',
+                        style: TextStyle(color: AppTheme.charcoal),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await GoogleSignIn().signOut();
+                          await FirebaseAuth.instance.signOut();
+                        },
+                        child: const Text('Sign Out'),
+                      ),
+                    ],
+                  ),
+                ),
               );
             }
 
