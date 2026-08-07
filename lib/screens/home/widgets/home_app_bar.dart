@@ -4,7 +4,16 @@ import '../../../core/theme.dart';
 import '../../profile/profile_screen.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const HomeAppBar({super.key});
+  final String selectedCity;
+  final List<String> availableCities;
+  final ValueChanged<String> onCityChanged;
+
+  const HomeAppBar({
+    super.key,
+    required this.selectedCity,
+    required this.availableCities,
+    required this.onCityChanged,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -21,24 +30,41 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           const Icon(Icons.location_on, color: AppTheme.charcoal),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'CURRENT LOCATION',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+          PopupMenuButton<String>(
+            initialValue: selectedCity,
+            onSelected: onCityChanged,
+            itemBuilder: (BuildContext context) {
+              return availableCities.map((String city) {
+                return PopupMenuItem<String>(
+                  value: city,
+                  child: Text(city),
+                );
+              }).toList();
+            },
+            child: Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'CURRENT LOCATION',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
-              ),
-              Text(
-                'Sector 62, Noida',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                    Text(
+                      selectedCity,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
-              ),
-            ],
+                  ],
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+              ],
+            ),
           ),
-          const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
         ],
       ),
       actions: [

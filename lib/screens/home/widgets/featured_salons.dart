@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/theme.dart';
 import '../../../widgets/cards.dart';
 import '../../branch_detail/branch_detail_screen.dart';
 import '../../../models/branch_model.dart';
-import '../../../repositories/branch_repository.dart';
 
 class FeaturedSalons extends StatelessWidget {
-  const FeaturedSalons({super.key});
+  final String selectedCity;
+
+  const FeaturedSalons({
+    super.key,
+    required this.selectedCity,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,21 +35,21 @@ class FeaturedSalons extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        FutureBuilder<List<Branch>>(
-          future: BranchRepository().getActiveBranchesByCity('Kanpur'),
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('vendors').where('city', isEqualTo: selectedCity).snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 24.0),
                 child: Text('No beauty parlors found in your area.'),
               );
             }
 
-            final branches = snapshot.data!;
+            final branches = snapshot.data!.docs.map((doc) => Branch.fromFirestore(doc)).toList();
 
             return Column(
               children: branches.map((branch) => MarketplaceCard(
