@@ -17,8 +17,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
-  String? _selectedCity;
   bool _isLoading = false;
 
   @override
@@ -48,8 +46,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           'name': _nameController.text.trim(),
           'email': user.email,
           'phoneNumber': _phoneController.text.trim(),
-          'address': _addressController.text.trim(),
-          'city': _selectedCity,
         }, SetOptions(merge: true));
         
         // Navigation is handled automatically by AuthWrapper in main.dart 
@@ -77,7 +73,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
     super.dispose();
   }
 
@@ -145,45 +140,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     final phoneRegex = RegExp(r'^[6-9]\d{9}$');
                     if (!phoneRegex.hasMatch(value.trim())) {
                       return 'Please enter a valid 10-digit Indian mobile number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedCity,
-                  decoration: const InputDecoration(
-                    labelText: 'City',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'Kanpur', child: Text('Kanpur')),
-                    DropdownMenuItem(value: 'Lucknow', child: Text('Lucknow')),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCity = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select your city';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _addressController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Home Address',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your home address';
                     }
                     return null;
                   },
