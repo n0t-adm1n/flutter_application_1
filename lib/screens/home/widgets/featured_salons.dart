@@ -36,7 +36,7 @@ class FeaturedSalons extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('vendors').where('city', isEqualTo: selectedCity).snapshots(),
+          stream: FirebaseFirestore.instance.collection('branches').where('city', isEqualTo: selectedCity).snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
