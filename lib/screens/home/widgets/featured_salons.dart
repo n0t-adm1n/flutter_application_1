@@ -7,10 +7,12 @@ import '../../../models/branch_model.dart';
 
 class FeaturedSalons extends StatelessWidget {
   final String selectedCity;
+  final String searchQuery;
 
   const FeaturedSalons({
     super.key,
     required this.selectedCity,
+    required this.searchQuery,
   });
 
   @override
@@ -36,7 +38,9 @@ class FeaturedSalons extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('branches').where('city', isEqualTo: selectedCity).snapshots(),
+          stream: searchQuery.isEmpty
+              ? FirebaseFirestore.instance.collection('branches').where('city', isEqualTo: selectedCity).snapshots()
+              : FirebaseFirestore.instance.collection('branches').where('city', isEqualTo: selectedCity).where('searchName', isGreaterThanOrEqualTo: searchQuery).where('searchName', isLessThan: '${searchQuery}z').snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());

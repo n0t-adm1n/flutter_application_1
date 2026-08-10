@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 
 class SearchFilter extends StatelessWidget {
-  const SearchFilter({super.key});
+  final TextEditingController searchController;
+
+  const SearchFilter({super.key, required this.searchController});
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +19,26 @@ class SearchFilter extends StatelessWidget {
           const SizedBox(width: 12),
           const Icon(Icons.search, color: Colors.grey),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: TextField(
+              controller: searchController,
               decoration: InputDecoration(
                 hintText: 'Search salons, stylists...',
                 border: InputBorder.none,
                 isDense: true,
+                suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: searchController,
+                  builder: (context, value, child) {
+                    return value.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            onPressed: () {
+                              searchController.clear();
+                            },
+                          )
+                        : const SizedBox.shrink();
+                  },
+                ),
               ),
             ),
           ),

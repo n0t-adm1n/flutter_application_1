@@ -17,6 +17,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _selectedCity = 'Lucknow';
   final List<String> _availableCities = const ['Lucknow', 'Kanpur'];
+  
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const MobileHeader(),
             const SizedBox(height: 24),
-            const SearchFilter(),
+            SearchFilter(searchController: _searchController),
             const SizedBox(height: 40),
             const CategoriesSection(),
             const SizedBox(height: 40),
-            FeaturedSalons(selectedCity: _selectedCity),
+            FeaturedSalons(selectedCity: _selectedCity, searchQuery: _searchQuery),
           ],
         ),
       ),
