@@ -23,7 +23,7 @@ class SearchFilter extends StatelessWidget {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Search salons, stylists...',
+                hintText: 'Search salons',
                 border: InputBorder.none,
                 isDense: true,
                 suffixIcon: ValueListenableBuilder<TextEditingValue>(
