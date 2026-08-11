@@ -22,9 +22,11 @@ class SearchFilter extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: searchController,
+              textAlignVertical: TextAlignVertical.center,
               decoration: InputDecoration(
                 hintText: 'Search salons',
                 border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 isDense: true,
                 suffixIcon: ValueListenableBuilder<TextEditingValue>(
                   valueListenable: searchController,
@@ -41,15 +43,6 @@ class SearchFilter extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: AppTheme.charcoal,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.tune, color: Colors.white),
           ),
         ],
       ),
