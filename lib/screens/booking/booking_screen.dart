@@ -283,11 +283,15 @@ class _BookingScreenState extends State<BookingScreen> {
                       
                       final endTime = startTime.add(Duration(minutes: widget.totalDuration));
 
+                      final userDoc = await FirebaseFirestore.instance.collection('customers').doc(user.uid).get();
+                      final userData = userDoc.data();
+                      final phoneNumber = userData?['phoneNumber'] as String?;
+
                       final customerSnapshot = {
                         'uid': user.uid,
                         'name': user.displayName ?? 'Customer',
                         'email': user.email ?? '',
-                        'phoneNumber': user.phoneNumber ?? 'Not provided',
+                        'phoneNumber': (phoneNumber == null || phoneNumber.trim().isEmpty) ? 'Not provided' : phoneNumber,
                       };
 
                       final servicesSnapshot = widget.selectedServices.map((s) => s.toFirestore()).toList();
