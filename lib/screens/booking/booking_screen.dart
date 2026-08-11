@@ -287,6 +287,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         'uid': user.uid,
                         'name': user.displayName ?? 'Customer',
                         'email': user.email ?? '',
+                        'phoneNumber': user.phoneNumber ?? 'Not provided',
                       };
 
                       final servicesSnapshot = widget.selectedServices.map((s) => s.toFirestore()).toList();

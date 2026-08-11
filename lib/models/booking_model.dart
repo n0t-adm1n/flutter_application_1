@@ -109,6 +109,8 @@ class Booking {
     final customerSnapshotMap = data['customerSnapshot'] is Map
         ? Map<String, dynamic>.from(data['customerSnapshot'] as Map)
         : <String, dynamic>{};
+        
+    customerSnapshotMap['phoneNumber'] = customerSnapshotMap['phoneNumber'] ?? 'Not provided';
 
     final servicesSnapshotList = data['servicesSnapshot'] is List
         ? (data['servicesSnapshot'] as List)
