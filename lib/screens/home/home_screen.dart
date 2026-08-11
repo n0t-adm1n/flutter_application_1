@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
 import 'widgets/home_app_bar.dart';
 import 'widgets/mobile_header.dart';
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchParlors();
+    _loadSelectedCity();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
         _fetchParlors();
@@ -47,6 +48,17 @@ class _HomeScreenState extends State<HomeScreen> {
         _resetAndFetch();
       }
     });
+  }
+
+  Future<void> _loadSelectedCity() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCity = prefs.getString('selectedCity');
+    if (savedCity != null && _availableCities.contains(savedCity)) {
+      setState(() {
+        _selectedCity = savedCity;
+      });
+    }
+    _fetchParlors();
   }
 
   Future<void> _fetchParlors() async {
@@ -109,11 +121,13 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: HomeAppBar(
         selectedCity: _selectedCity,
         availableCities: _availableCities,
-        onCityChanged: (newCity) {
+        onCityChanged: (newCity) async {
           if (_selectedCity != newCity) {
             setState(() {
               _selectedCity = newCity;
             });
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('selectedCity', newCity);
             _resetAndFetch();
           }
         },
